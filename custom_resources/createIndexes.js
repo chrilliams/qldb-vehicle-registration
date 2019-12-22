@@ -14,10 +14,13 @@ module.exports.handler = async (event,context) => {
           session = await createQldbSession();
           await session.executeLambda(async (txn) => {
             Promise.all([
-                createTable(txn, 'VehicleRegistration'),
-                createTable(txn, 'Vehicle'),
-                createTable(txn, 'Person'),
-                createTable(txn, 'DriversLicense')
+              createIndex(txn, 'Person', 'GovId'),
+              createIndex(txn, 'Vehicle', 'VIN'),
+              createIndex(txn, 'VehicleRegistration', 'VIN'),
+              createIndex(txn, 'VehicleRegistration', 'LicensePlateNumber'),
+              createIndex(txn, 'DriversLicense', 'PersonId'),
+              createIndex(txn, 'DriversLicense', 'LicenseNumber')
+
             ]);
         }, () => log("Retrying due to OCC conflict..."));
       } catch (e) {
@@ -34,7 +37,7 @@ module.exports.handler = async (event,context) => {
     await response.send(event, context, response.SUCCESS, responseData);
   }
   catch(error) {
-    console.error(error);
+    console.log(`catch all error: ${error}`);
 
     await response.send(event, context, response.FAILED, {'Error': error});
 
@@ -43,8 +46,8 @@ module.exports.handler = async (event,context) => {
 };
 
 
-async function createTable(txn, tableName){
-  const statement = `CREATE TABLE ${tableName}`;
+async function createIndex(txn, tableName, indexAttribute){
+  const statement = `CREATE INDEX on ${tableName} (${indexAttribute})`;
   try {
     const result = await txn.executeInline(statement);
     return result.getResultList().length;

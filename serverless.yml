@@ -46,6 +46,20 @@ functions:
     environment:
       LEDGER_NAME: ${self:provider.stage}-vehicle-registration
     
+  createIndexes:
+    name: ${self:provider.stage}-createIndexes
+    handler: custom_resources/createIndexes.handler
+    memorySize: 256
+    timeout: 6
+    iamRoleStatements:
+      - Effect: Allow
+        Action: 
+          - qldb:SendCommand
+        Resource: arn:aws:qldb:#{AWS::Region}:#{AWS::AccountId}:ledger/${self:provider.stage}-vehicle-registration
+    environment:
+      LEDGER_NAME: ${self:provider.stage}-vehicle-registration
+
+       
 # you can add CloudFormation resource templates here
 resources:
   Resources:
@@ -61,6 +75,14 @@ resources:
 
     qldbTable:
       Type: Custom::qldbTable
+      DependsOn: vehicleRegistrationQLDB
       Properties:
         ServiceToken: !GetAtt CreateTableLambdaFunction.Arn
         Version: 1.12  //change this to force redeploy
+
+    qldbIndexes:
+      Type: Custom::qldbIndexes
+      DependsOn: qldbTable
+      Properties:
+        ServiceToken: !GetAtt CreateIndexesLambdaFunction.Arn
+        Version: 1.1  //change this to force redeploy
