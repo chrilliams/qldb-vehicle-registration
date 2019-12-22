@@ -1,0 +1,66 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: qldb
+# app and org for use with dashboard.serverless.com
+#app: your-app-name
+#org: your-org-name
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+# frameworkVersion: "=X.X.X"
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+
+# you can overwrite defaults here
+  stage: ${opt:stage, 'dev'}
+  region: eu-west-1
+
+plugins:
+  - serverless-iam-roles-per-function
+  - serverless-pseudo-parameters
+
+functions:
+  createTable:
+    name: ${self:provider.stage}-createTable
+    handler: custom_resources/createTables.handler
+    memorySize: 256
+    timeout: 6
+    iamRoleStatements:
+      - Effect: Allow
+        Action: 
+          - qldb:SendCommand
+        Resource: arn:aws:qldb:#{AWS::Region}:#{AWS::AccountId}:ledger/${self:provider.stage}-vehicle-registration
+    environment:
+      LEDGER_NAME: ${self:provider.stage}-vehicle-registration
+    
+# you can add CloudFormation resource templates here
+resources:
+  Resources:
+    vehicleRegistrationQLDB: 
+      Type: AWS::QLDB::Ledger
+      Properties:
+        DeletionProtection: false
+        Name: ${self:provider.stage}-vehicle-registration
+        PermissionsMode: ALLOW_ALL
+        Tags:
+          - Key: engineer
+            Value: chris williams
+
+    qldbTable:
+      Type: Custom::qldbTable
+      Properties:
+        ServiceToken: !GetAtt CreateTableLambdaFunction.Arn
+        Version: 1.12  //change this to force redeploy
