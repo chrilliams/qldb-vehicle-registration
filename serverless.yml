@@ -68,7 +68,7 @@ resources:
       Properties:
         DeletionProtection: false
         Name: ${self:provider.stage}-vehicle-registration
-        PermissionsMode: ALLOW_ALL
+        PermissionsMode: ALLOW_ALL # only option available
         Tags:
           - Key: engineer
             Value: chris williams
@@ -78,11 +78,11 @@ resources:
       DependsOn: vehicleRegistrationQLDB
       Properties:
         ServiceToken: !GetAtt CreateTableLambdaFunction.Arn
-        Version: 1.12  //change this to force redeploy
+        Version: 1.12  #change this to force redeploy
 
     qldbIndexes:
       Type: Custom::qldbIndexes
       DependsOn: qldbTable
       Properties:
         ServiceToken: !GetAtt CreateIndexesLambdaFunction.Arn
-        Version: 1.1  //change this to force redeploy
+        Version: 1.1  #change this to force redeploy
