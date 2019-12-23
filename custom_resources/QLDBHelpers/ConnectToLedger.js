@@ -12,7 +12,7 @@ const pooledQldbDriver = createQldbDriver();
  * @returns The pooled driver for creating sessions.
  */
 function createQldbDriver(
-  ledgerName = process.env.LEDGER_NAME,
+  ledgerName = process.env.LEDGER_NAME || 'dev-vehicle-registration',
   serviceConfigurationOptions = {}
 ) {
   const qldbDriver = new PooledQldbDriver(ledgerName, serviceConfigurationOptions);
