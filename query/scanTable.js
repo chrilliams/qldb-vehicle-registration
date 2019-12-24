@@ -83,3 +83,6 @@ var main = async function() {
 if (require.main === module) {
     main();
 }
+
+
+exports.prettyPrintResultList = prettyPrintResultList;

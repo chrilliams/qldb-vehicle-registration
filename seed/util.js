@@ -253,3 +253,4 @@ function writeValueAsIon(value, ionWriter) {
 
 exports.writeValueAsIon = writeValueAsIon;
 exports.getFieldValue = getFieldValue;
+exports.getDocumentId = getDocumentId;
