@@ -9,3 +9,7 @@ node query/ScanTable.js
 ## find vehicles
 
 node query/findVehicles.js 
+
+## modify ownership
+
+node modify/transferVehicleOwnership.js
